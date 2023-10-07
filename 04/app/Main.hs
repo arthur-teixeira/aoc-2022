@@ -3,7 +3,7 @@ module Main where
 main :: IO ()
 main = interact $ show . solve
 
-solve = numContainedSections . map (containsSection . parseLine) . lines
+solve = numContainedSections . map (overlapsSection . parseLine) . lines
 
 data Section =
   Section Int Int
@@ -13,20 +13,25 @@ data Pair =
   Pair Section Section
   deriving (Show)
 
+chopWhen :: (a -> Bool) -> [a] -> ([a], [a])
+chopWhen f xs = case break f xs of
+  (ys, z:zs) -> (ys, zs)
+
 parseLine :: String -> Pair
 parseLine input =
-  case span (/= ',') input of
-    (xs, ys) -> Pair (parseSection xs) (parseSection $ drop 1 ys)
+  case chopWhen (== ',') input of
+    (xs, ys) -> Pair (parseSection xs) (parseSection ys)
+
 
 parseSection :: String -> Section
 parseSection input =
-  case span (/= '-') input of
-    (xs, ys) -> Section (read xs) (read $ drop 1 ys)
+  case chopWhen (== '-') input of
+    (xs, ys) -> Section (read xs) (read ys)
 
-containsSection :: Pair -> Bool
-containsSection (Pair a b) = a `contains` b || b `contains` a
+overlapsSection :: Pair -> Bool
+overlapsSection (Pair a b) = a `overlapsWith` b || b `overlapsWith` a
   where
-    contains (Section a1 b1) (Section a2 b2) = a1 <= a2 && b1 >= b2
+    overlapsWith (Section a1 b1) (Section a2 b2) = b1 >= a2 && a1 <= b2
 
 numContainedSections :: [Bool] -> Int
-numContainedSections = sum . map (\y -> if y then 1 else 0)
+numContainedSections = sum . map fromEnum
