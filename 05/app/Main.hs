@@ -115,7 +115,7 @@ pushToStack numStack elems (Pile p) =
 
 applyInstruction :: Instruction -> Pile -> Pile
 applyInstruction (Instruction amount from to) pile@(Pile p) =
-  let elems = reverse $ takeLast amount (p !! (from - 1))
+  let elems = takeLast amount (p !! (from - 1))
    in pushToStack (to - 1) elems (dropFromStack (from - 1) amount pile)
 
 getTopFromStacks :: Pile -> [Crate]
