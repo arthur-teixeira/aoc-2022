@@ -26,7 +26,7 @@ solve xs =
       pile = makePile pileString
       instructions = map parseInstruction instructionsString
       finalPile = foldl (flip applyInstruction) pile instructions
-  in getTopFromStacks finalPile
+   in getTopFromStacks finalPile
 
 pileAndInstructions :: String -> ([String], [String])
 pileAndInstructions = break (== "") . lines
@@ -45,28 +45,18 @@ getCratesInLine xs =
   case splitAt 4 xs of
     (crate, ys) -> getCrate crate : getCratesInLine ys
 
-chunksOf :: Int -> [a] -> [[a]]
-chunksOf size xs
-  | length xs > size =
-    case splitAt size xs of
-      (chunk, ys) -> chunk : chunksOf size ys
-  | otherwise = [xs]
-
 trim :: String -> String
 trim = takeWhile (/= ' ')
 
 pileFromLine :: [Crate] -> Pile
-pileFromLine xs = Pile (chunksOf 1 xs)
+pileFromLine xs = Pile (map return xs)
 
 trimPile :: Pile -> Pile
 trimPile (Pile xs) = Pile (map trim xs)
 
 makePile :: [String] -> Pile
 makePile xs =
-  trimPile
-    $ foldr1 (<>)
-    $ map (pileFromLine . getCratesInLine)
-    $ init xs
+  trimPile $ foldr1 (<>) $ map (pileFromLine . getCratesInLine) $ init xs
 
 data Instruction =
   Instruction Int Int Int
@@ -120,4 +110,3 @@ applyInstruction (Instruction amount from to) pile@(Pile p) =
 
 getTopFromStacks :: Pile -> [Crate]
 getTopFromStacks (Pile p) = map last p
-
