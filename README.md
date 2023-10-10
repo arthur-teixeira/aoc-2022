@@ -6,5 +6,5 @@ to learn the language.
 ### Running
 ```sh
 $ cd [day]
-$ cabal run
+$ cat app/input.txt | cabal run
 ```
