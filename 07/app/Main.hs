@@ -9,9 +9,9 @@ import Numeric (readSigned)
 
 main :: IO ()
 main = do
-    contents <- getContents
-    putStrLn $ partOne contents
-    putStrLn $ partTwo contents
+  contents <- getContents
+  putStrLn $ partOne contents
+  putStrLn $ partTwo contents
 
 data Line
   = CdTop -- $ cd /
@@ -57,7 +57,7 @@ partOne xs = "Part one: " ++ (show . solve) xs
   where
     solve xs =
       let (tree, _) = makeFileSystem xs
-       in sum . filter (<= 100_000) $ allFolderSizes tree []
+       in sum . filter (<= 100_000) $ allFolderSizes tree
 
 partTwo :: String -> String
 partTwo xs = "Part two: " ++ (show . solve) xs
@@ -68,7 +68,7 @@ partTwo xs = "Part two: " ++ (show . solve) xs
           totalInUse = treeSize tree
           totalUnused = totalAvailable - totalInUse
           spaceNeeded = 30_000_000 - totalUnused
-          folderSizes = allFolderSizes tree []
+          folderSizes = allFolderSizes tree
           options = filter (>= spaceNeeded) folderSizes
        in minimum options
 
@@ -79,15 +79,12 @@ data Tree
 
 type State = (Tree, [T.Text])
 
-newFolder :: T.Text -> Tree
-newFolder = flip Folder []
-
 treeAppend :: State -> Tree -> Tree
-treeAppend (Folder name files, [curFolder]) newFolderName =
-  Folder name (newFolderName : files)
-treeAppend (Folder curFolderName curFolderFiles, _:nextFolder:path) newFolderName =
+treeAppend (Folder name files, [curFolder]) newNode =
+  Folder name (newNode : files)
+treeAppend (Folder curFolderName curFolderFiles, _:nextFolder:path) newNode =
   let ([next], folders) = partition isNextFolder curFolderFiles
-      newF = treeAppend (next, nextFolder : path) newFolderName
+      newF = treeAppend (next, nextFolder : path) newNode
    in Folder curFolderName (newF : folders)
   where
     isNextFolder (File _) = False
@@ -95,28 +92,28 @@ treeAppend (Folder curFolderName curFolderFiles, _:nextFolder:path) newFolderNam
 
 doCdDown :: State -> T.Text -> State
 doCdDown state@(_, oldPath) newFolderName =
-  let newTree = treeAppend state (newFolder newFolderName)
+  let newTree = treeAppend state $ Folder newFolderName []
    in (newTree, oldPath ++ [newFolderName])
 
 doFile :: State -> Int -> State
 doFile state@(_, oldPath) newFileSize =
-  let newTree = treeAppend state (File newFileSize)
+  let newTree = treeAppend state $ File newFileSize
    in (newTree, oldPath)
 
 doLine :: Line -> State -> State
 doLine CdTop (tree, _) = (tree, ["/"])
 doLine CdUp (tree, path) = (tree, init path)
-doLine (CdDown folder) (tree, path) = doCdDown (tree, path) folder
-doLine (LsFile fileSize) (tree, path) = doFile (tree, path) fileSize
+doLine (CdDown folder) state = doCdDown state folder
+doLine (LsFile fileSize) state = doFile state fileSize
 
 treeSize :: Tree -> Int
 treeSize (File size) = size
 treeSize (Folder _ []) = 0
 treeSize (Folder _ children) = sum . map treeSize $ children
 
-allFolderSizes :: Tree -> [Int] -> [Int]
-allFolderSizes (File _) xs = []
-allFolderSizes curFolder@(Folder _ children) xs =
+allFolderSizes :: Tree -> [Int]
+allFolderSizes (File _) = []
+allFolderSizes curFolder@(Folder _ children) =
   let curFolderSize = treeSize curFolder
-      childrenSizes = concatMap (`allFolderSizes` []) children
+      childrenSizes = concatMap allFolderSizes children
    in curFolderSize : childrenSizes
