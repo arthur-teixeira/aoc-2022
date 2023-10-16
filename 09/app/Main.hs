@@ -7,9 +7,9 @@ import Data.Function (on)
 import qualified Data.Set as S
 
 main :: IO ()
-main = interact $ show . partOne
+main = interact $ show . partTwo
 
-partOne = S.size . visited . foldl (flip move) startState . parse
+partTwo = S.size . visited . foldl (flip move) startState . parse
 
 data Move =
   Move Char Int
@@ -18,8 +18,7 @@ data Move =
 type Position = (Int, Int)
 
 data State = State
-  { getHead :: Position
-  , tail :: Position
+  { body :: [Position]
   , visited :: S.Set Position
   } deriving (Show)
 
@@ -31,12 +30,10 @@ parseLine xs =
 parse :: String -> [Move]
 parse = map parseLine . lines
 
-type StateTransformer = State -> Move -> State
-
 applyNTimes :: Int -> (a -> a) -> a -> a
 applyNTimes x f = foldr1 (.) (replicate x f)
 
-startState = State (0, 0) (0, 0) $ S.fromList [(0, 0)]
+startState = State (replicate 10 (0, 0)) $ S.fromList [(0, 0)]
 
 moveUp :: Position -> Position
 moveUp (x, y) = (x, y + 1)
@@ -51,11 +48,11 @@ moveRight :: Position -> Position
 moveRight (x, y) = (x + 1, y)
 
 moveOnce :: Char -> State -> State
-moveOnce direction (State head tail visited) =
+moveOnce direction (State (head:tails) visited) =
   let newHead = mover head
-      newTail = moveTail newHead tail
-      newVisited = S.insert newTail visited
-   in State newHead newTail newVisited
+      newTail = moveTails (newHead : tails)
+      newVisited = S.insert (last newTail) visited
+   in State (newHead:newTail) newVisited
   where
     mover =
       case direction of
@@ -79,6 +76,12 @@ closestTo options target = minimumBy (compare `on` distance target) options
       (fromIntegral x - fromIntegral x') ^ 2
         + (fromIntegral y - fromIntegral y') ^ 2
 
+moveTails :: [Position] -> [Position]
+moveTails [_] = []
+moveTails (x:y:ys) =
+  let newPos = moveTail x y
+   in newPos : moveTails (newPos : ys)
+
 moveTail :: Position -> Position -> Position
 moveTail head tail
   | tail `elem` neighbors = tail
@@ -86,13 +89,3 @@ moveTail head tail
   where
     neighbors = neighborhoodOf head
     valid_positions = neighborhoodOf tail `S.intersection` neighbors
-
-input =
-  "R 4\n\
- \U 4\n\
- \L 3\n\
- \D 1\n\
- \R 4\n\
- \D 1\n\
- \L 5\n\
- \R 2"
