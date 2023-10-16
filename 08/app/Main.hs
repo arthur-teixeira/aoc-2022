@@ -7,9 +7,13 @@ import Data.Char (digitToInt)
 import Data.List (transpose)
 
 main :: IO ()
-main = interact $ show . partOne
+main = do
+    contents <- getContents
+    putStrLn $ partOne contents
+    putStrLn $ partTwo contents
 
-partOne = allVisible . visibility . parse
+partOne xs = "Part one: " ++ (show . allVisible . visibility . parse) xs
+partTwo xs = "Part two: " ++ (show . maximum . concat . scenicScores . parse) xs
 
 visibleX :: Int -> [Int] -> [Bool]
 visibleX _ [] = []
@@ -35,5 +39,25 @@ visibility xs = [getZipList $ (||) <$> a <*> b | a <- x | b <- y]
 allVisible :: [[Bool]] -> Int
 allVisible [] = 0
 allVisible (x:xs) = sumBools x + allVisible xs
-    where
-        sumBools = sum . map fromEnum
+  where
+    sumBools = sum . map fromEnum
+
+numVisibleTreesX :: [Int] -> [Int]
+numVisibleTreesX [] = []
+numVisibleTreesX [_] = [0]
+numVisibleTreesX (x:xs) =
+    let (visible, blocker) = span (< x) xs
+        current = length visible + if null blocker then 0 else 1
+        in current : numVisibleTreesX xs
+
+numVisibleTreesLR :: [Int] -> [Int]
+numVisibleTreesLR xs = getZipList $ (*) <$> left <*> right
+  where
+    left = ZipList $ numVisibleTreesX xs
+    right = ZipList $ reverse . numVisibleTreesX . reverse $ xs
+
+scenicScores :: [[Int]] -> [[Int]]
+scenicScores xs = [getZipList $ (*) <$> a <*> b | a <- x | b <- y]
+  where
+    x = map (ZipList . numVisibleTreesLR) xs
+    y = map ZipList $ transpose $ map numVisibleTreesLR $ transpose xs
