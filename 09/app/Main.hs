@@ -7,9 +7,18 @@ import Data.Function (on)
 import qualified Data.Set as S
 
 main :: IO ()
-main = interact $ show . partTwo
+main = do
+    contents <- getContents
+    putStrLn $ partOne contents
+    putStrLn $ partTwo contents
 
-partTwo = S.size . visited . foldl (flip move) startState . parse
+solve state = S.size . visited . foldl (flip move) state . parse
+
+startStateOne = State (replicate 2 (0, 0)) $ S.fromList [(0, 0)]
+startStateTwo = State (replicate 10 (0, 0)) $ S.fromList [(0, 0)]
+
+partOne xs = "Part one: " ++ (show . solve startStateOne) xs
+partTwo xs = "Part two: " ++ (show . solve startStateTwo) xs
 
 data Move =
   Move Char Int
@@ -32,8 +41,6 @@ parse = map parseLine . lines
 
 applyNTimes :: Int -> (a -> a) -> a -> a
 applyNTimes x f = foldr1 (.) (replicate x f)
-
-startState = State (replicate 10 (0, 0)) $ S.fromList [(0, 0)]
 
 moveUp :: Position -> Position
 moveUp (x, y) = (x, y + 1)
