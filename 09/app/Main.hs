@@ -1,0 +1,98 @@
+module Main where
+
+import Prelude hiding (Left, Right)
+
+import Data.Foldable (minimumBy)
+import Data.Function (on)
+import qualified Data.Set as S
+
+main :: IO ()
+main = interact $ show . partOne
+
+partOne = S.size . visited . foldl (flip move) startState . parse
+
+data Move =
+  Move Char Int
+  deriving (Show)
+
+type Position = (Int, Int)
+
+data State = State
+  { getHead :: Position
+  , tail :: Position
+  , visited :: S.Set Position
+  } deriving (Show)
+
+parseLine :: String -> Move
+parseLine xs =
+  case words xs of
+    [dir, moves] -> Move (head dir) (read moves)
+
+parse :: String -> [Move]
+parse = map parseLine . lines
+
+type StateTransformer = State -> Move -> State
+
+applyNTimes :: Int -> (a -> a) -> a -> a
+applyNTimes x f = foldr1 (.) (replicate x f)
+
+startState = State (0, 0) (0, 0) $ S.fromList [(0, 0)]
+
+moveUp :: Position -> Position
+moveUp (x, y) = (x, y + 1)
+
+moveDown :: Position -> Position
+moveDown (x, y) = (x, y - 1)
+
+moveLeft :: Position -> Position
+moveLeft (x, y) = (x - 1, y)
+
+moveRight :: Position -> Position
+moveRight (x, y) = (x + 1, y)
+
+moveOnce :: Char -> State -> State
+moveOnce direction (State head tail visited) =
+  let newHead = mover head
+      newTail = moveTail newHead tail
+      newVisited = S.insert newTail visited
+   in State newHead newTail newVisited
+  where
+    mover =
+      case direction of
+        'U' -> moveUp
+        'D' -> moveDown
+        'L' -> moveLeft
+        'R' -> moveRight
+
+move :: Move -> State -> State
+move (Move direction n) = applyNTimes n (moveOnce direction)
+
+neighborhoodOf :: Position -> S.Set Position
+neighborhoodOf (x, y) =
+  S.fromList [(x + dx, y + dy) | dx <- [-1 .. 1], dy <- [-1 .. 1]]
+
+closestTo :: S.Set Position -> Position -> Position
+closestTo options target = minimumBy (compare `on` distance target) options
+  where
+    distance :: Position -> Position -> Float
+    distance (x, y) (x', y') =
+      (fromIntegral x - fromIntegral x') ^ 2
+        + (fromIntegral y - fromIntegral y') ^ 2
+
+moveTail :: Position -> Position -> Position
+moveTail head tail
+  | tail `elem` neighbors = tail
+  | otherwise = valid_positions `closestTo` head
+  where
+    neighbors = neighborhoodOf head
+    valid_positions = neighborhoodOf tail `S.intersection` neighbors
+
+input =
+  "R 4\n\
+ \U 4\n\
+ \L 3\n\
+ \D 1\n\
+ \R 4\n\
+ \D 1\n\
+ \L 5\n\
+ \R 2"
