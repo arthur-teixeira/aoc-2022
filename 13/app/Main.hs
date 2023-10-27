@@ -1,12 +1,14 @@
 module Main where
 
 import Data.Char
+import Data.List
 import Data.List.Split (splitWhen)
 
 main :: IO ()
 main = do
-   contents <- getContents
-   putStrLn $ "Part One: " <> show (partOne contents)
+    contents <- getContents
+    putStrLn $ "Part One: " <> show (partOne contents)
+    putStrLn $ "Part Two: " <> show (partTwo contents)
 
 data Packet
     = Number Int
@@ -26,11 +28,18 @@ type Indexed a = (Int, a)
 
 partOne = sum . map doPair . index . parseInput
 
+partTwo xs =
+    product . findDividers . index . sort $
+    dividerPackets <> parseLines (lines xs)
+
 parseInput :: String -> [Pair]
 parseInput = map parsePair . splitWhen (== "") . lines
 
 parsePair :: [String] -> Pair
-parsePair [a,b] = (parseLine a, parseLine b)
+parsePair [a, b] = (parseLine a, parseLine b)
+
+parseLines :: [String] -> [Packet]
+parseLines = map parseLine . filter (/= "")
 
 parseLine :: String -> Packet
 parseLine "" = List []
@@ -46,9 +55,17 @@ parseLine xs = List [read $ process xs]
     isNum = flip elem "-0123456789"
 
 index :: [a] -> [(Int, a)]
-index = zip [1..]
+index = zip [1 ..]
 
 doPair :: Indexed Pair -> Int
-doPair (idx, (a, b)) 
+doPair (idx, (a, b))
     | a < b = idx
     | otherwise = 0
+
+dividerPackets = [a, b]
+  where
+    a = List [List [Number 2]]
+    b = List [List [Number 6]]
+
+findDividers :: [Indexed Packet] -> [Int]
+findDividers = map fst . filter (\(_, p) -> p `elem` dividerPackets)
