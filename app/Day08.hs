@@ -12,8 +12,11 @@ main = do
     putStrLn $ partOne contents
     putStrLn $ partTwo contents
 
-partOne xs = "Part one: " ++ (show . allVisible . visibility . parse) xs
-partTwo xs = "Part two: " ++ (show . maximum . concat . scenicScores . parse) xs
+partOne :: String -> String
+partOne xs = "Part one: " <> (show . allVisible . visibility . parse) xs
+
+partTwo :: String -> String
+partTwo xs = "Part two: " <> (show . maximum . concat . scenicScores . parse) xs
 
 visibleX :: Int -> [Int] -> [Bool]
 visibleX _ [] = []

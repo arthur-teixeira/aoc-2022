@@ -1,9 +1,8 @@
 module Day05 where
 
 import Data.Char (isAlpha)
-import Data.List (inits, stripPrefix)
+import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
-import GHC.Base (getTag)
 
 main :: IO ()
 main = interact solve
@@ -81,7 +80,7 @@ parseInstruction' :: String -> Maybe Instruction
 parseInstruction' xs = do
   (amount, rest1) <- parseAmount xs
   (from, rest2) <- parseFrom rest1
-  (to, rest3) <- parseTo rest2
+  (to, _) <- parseTo rest2
   Just (Instruction amount from to)
 
 parseInstruction :: String -> Instruction

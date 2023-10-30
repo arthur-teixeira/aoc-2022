@@ -1,6 +1,6 @@
 module Day03 where
 
-import Data.List
+import Data.List (elemIndex)
 import Data.Maybe
 
 main :: IO ()
@@ -13,6 +13,7 @@ chunksOf size xs
       (chunk, ys) -> chunk : chunksOf size ys
   | otherwise = [xs]
 
+solve :: String -> Int
 solve = sum . map itemPriority . chunksOf 3 . lines
   where
     itemPriority = getItemPriority . getCommonItem . tuplify3

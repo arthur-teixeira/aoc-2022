@@ -7,15 +7,16 @@ import qualified Data.Array.IArray as A
 import Data.List (nub)
 import Linear.V2
 
-import Control.Applicative
-
 main :: IO ()
 main = do
     contents <- getContents
     putStrLn $ "Part One: " <> show (partOne contents)
     putStrLn $ "Part Two: " <> show (partTwo contents)
 
+partOne :: String -> Int
 partOne = evalState (starts >>= bfs) . inputToGraph . lines
+
+partTwo :: String -> Int
 partTwo = evalState (startsA >>= bfs) . inputToGraph . lines
 
 type Edge = (Int, Int)
@@ -40,6 +41,7 @@ bfs xs = do
     then return 0
     else (+ 1) <$> (steps xs >>= bfs)
 
+dirs :: [V2 Int]
 dirs = [V2 0 1, V2 1 0, V2 0 (-1), V2 (-1) 0]
 
 starts :: BFS [V2 Int]

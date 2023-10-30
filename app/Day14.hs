@@ -1,6 +1,6 @@
 module Day14 where
 
-import Data.List (nub, sort, tails)
+import Data.List (nub, tails)
 import Data.List.Split (splitWhen)
 import qualified Data.Set as S
 
@@ -12,10 +12,12 @@ main = do
   putStrLn $ "Part one: " <> show (partOne contents)
   putStrLn $ "Part two: " <> show (partTwo contents)
 
+partOne :: [Char] -> Int
 partOne xs = evalState (doPartOne rocks) 0
   where
     rocks = S.fromList $ makeLines xs
 
+partTwo :: [Char] -> Int
 partTwo xs = evalState (doPartTwo lowest rocks) 1
   where
     rocks = S.fromList $ makeLines xs
@@ -63,16 +65,18 @@ diagLeft (x, y) = (x - 1, y + 1)
 diagRight :: Point -> Point
 diagRight (x, y) = (x + 1, y + 1)
 
+dropSand :: S.Set Point -> S.Set Point
 dropSand = dropSand' start
   where
     start = (500, 0)
 
+dropSandPartTwo :: Int -> S.Set Point -> S.Set Point
 dropSandPartTwo lowest = dropSandPartTwo' lowest start
   where
     start = (500, 0)
 
 hasBelow :: Point -> S.Set Point -> Bool
-hasBelow (x, y) = any ((== x) . fst)
+hasBelow (x, _) = any ((== x) . fst)
 
 dropSand' :: Point -> S.Set Point -> S.Set Point
 dropSand' sand points

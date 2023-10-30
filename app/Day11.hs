@@ -57,9 +57,8 @@ parse :: String -> MonkeyMap
 parse = makeMonkeyMap . map parseMonkey . splitInput
 
 parseId :: String -> Int
-parseId (stripPrefix "Monkey " -> Just id) =
-  case id of
-    [mId, ':'] -> read [mId]
+parseId (stripPrefix "Monkey " -> Just mId) =
+    read [head mId]
 
 parseStartingItems :: String -> [Int]
 parseStartingItems (stripPrefix "  Starting items: " -> Just str) =
@@ -72,7 +71,7 @@ parseOperation (stripPrefix "  Operation: new = old " -> Just str) =
   op $ words str
   where
     op :: [String] -> Int -> Int
-    op ["*", "old"] = (^ 2)
+    op ["*", "old"] = (^ (2 :: Int))
     op ["*", num] = (*) $ read num
     op ["+", "old"] = (* 2)
     op ["+", num] = (+) $ read num
@@ -100,7 +99,7 @@ parseMonkey [idStr, itemsStr, opStr, testStr, ifTrue, ifFalse] =
     }
 
 makeMonkeyMap :: [Monkey] -> MonkeyMap
-makeMonkeyMap = foldr (\m map -> M.insert (monkeyId m) m map) M.empty
+makeMonkeyMap = foldr (\m -> M.insert (monkeyId m) m) M.empty
 
 setMonkeyItems :: [Int] -> Monkey -> Monkey
 setMonkeyItems items m =

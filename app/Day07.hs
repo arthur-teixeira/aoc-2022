@@ -2,10 +2,9 @@
 
 module Day07 where
 
-import Data.List
+import Data.List (partition)
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
-import Numeric (readSigned)
 
 main :: IO ()
 main = do
@@ -55,15 +54,15 @@ makeFileSystem xs =
 partOne :: String -> String
 partOne xs = "Part one: " ++ (show . solve) xs
   where
-    solve xs =
-      let (tree, _) = makeFileSystem xs
+    solve ys =
+      let (tree, _) = makeFileSystem ys
        in sum . filter (<= 100_000) $ allFolderSizes tree
 
 partTwo :: String -> String
 partTwo xs = "Part two: " ++ (show . solve) xs
   where
-    solve xs =
-      let (tree, _) = makeFileSystem xs
+    solve ys =
+      let (tree, _) = makeFileSystem ys
           totalAvailable = 70_000_000
           totalInUse = treeSize tree
           totalUnused = totalAvailable - totalInUse
@@ -80,7 +79,7 @@ data Tree
 type State = (Tree, [T.Text])
 
 treeAppend :: State -> Tree -> Tree
-treeAppend (Folder name files, [curFolder]) newNode =
+treeAppend (Folder name files, [_]) newNode =
   Folder name (newNode : files)
 treeAppend (Folder curFolderName curFolderFiles, _:nextFolder:path) newNode =
   let ([next], folders) = partition isNextFolder curFolderFiles

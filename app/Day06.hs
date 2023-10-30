@@ -1,5 +1,5 @@
 module Day06 where
-import Data.List
+import Data.List (tails)
 
 main :: IO ()
 main = interact $ show . firstUnique . substrs

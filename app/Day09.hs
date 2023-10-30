@@ -8,16 +8,23 @@ import qualified Data.Set as S
 
 main :: IO ()
 main = do
-    contents <- getContents
-    putStrLn $ partOne contents
-    putStrLn $ partTwo contents
+  contents <- getContents
+  putStrLn $ partOne contents
+  putStrLn $ partTwo contents
 
+solve :: State -> String -> Int
 solve state = S.size . visited . foldl (flip move) state . parse
 
+startStateOne :: State
 startStateOne = State (replicate 2 (0, 0)) $ S.fromList [(0, 0)]
+
+startStateTwo :: State
 startStateTwo = State (replicate 10 (0, 0)) $ S.fromList [(0, 0)]
 
+partOne :: String -> String
 partOne xs = "Part one: " ++ (show . solve startStateOne) xs
+
+partTwo :: String -> String
 partTwo xs = "Part two: " ++ (show . solve startStateTwo) xs
 
 data Move =
@@ -55,11 +62,11 @@ moveRight :: Position -> Position
 moveRight (x, y) = (x + 1, y)
 
 moveOnce :: Char -> State -> State
-moveOnce direction (State (head:tails) visited) =
-  let newHead = mover head
+moveOnce direction (State (h:tails) visited) =
+  let newHead = mover h
       newTail = moveTails (newHead : tails)
       newVisited = S.insert (last newTail) visited
-   in State (newHead:newTail) newVisited
+   in State (newHead : newTail) newVisited
   where
     mover =
       case direction of
@@ -80,8 +87,8 @@ closestTo options target = minimumBy (compare `on` distance target) options
   where
     distance :: Position -> Position -> Float
     distance (x, y) (x', y') =
-      (fromIntegral x - fromIntegral x') ^ 2
-        + (fromIntegral y - fromIntegral y') ^ 2
+      (fromIntegral x - fromIntegral x') ^ (2 :: Int)
+        + (fromIntegral y - fromIntegral y') ^ (2 :: Int)
 
 moveTails :: [Position] -> [Position]
 moveTails [_] = []
@@ -90,9 +97,9 @@ moveTails (x:y:ys) =
    in newPos : moveTails (newPos : ys)
 
 moveTail :: Position -> Position -> Position
-moveTail head tail
-  | tail `elem` neighbors = tail
-  | otherwise = valid_positions `closestTo` head
+moveTail h t
+  | t `elem` neighbors = t
+  | otherwise = valid_positions `closestTo` h
   where
-    neighbors = neighborhoodOf head
-    valid_positions = neighborhoodOf tail `S.intersection` neighbors
+    neighbors = neighborhoodOf h
+    valid_positions = neighborhoodOf t `S.intersection` neighbors

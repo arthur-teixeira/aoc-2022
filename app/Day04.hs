@@ -3,6 +3,7 @@ module Day04 where
 main :: IO ()
 main = interact $ show . solve
 
+solve :: String -> Int
 solve = numContainedSections . map (overlapsSection . parseLine) . lines
 
 data Section =
@@ -15,7 +16,7 @@ data Pair =
 
 chopWhen :: (a -> Bool) -> [a] -> ([a], [a])
 chopWhen f xs = case break f xs of
-  (ys, z:zs) -> (ys, zs)
+  (ys, _:zs) -> (ys, zs)
 
 parseLine :: String -> Pair
 parseLine input =

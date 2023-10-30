@@ -7,48 +7,51 @@ solve :: String -> Int
 solve xs = sum $ roundResult <$> parseInput xs
 
 data Shape
-    = Rock
-    | Paper
-    | Scissors
-    deriving (Eq, Show)
+  = Rock
+  | Paper
+  | Scissors
+  deriving (Eq, Show)
 
 data Outcome
-    = Win
-    | Loss
-    | Draw
-    deriving (Eq, Show)
+  = Win
+  | Loss
+  | Draw
+  deriving (Eq, Show)
 
 data Round =
-    Round Shape Outcome
-    deriving (Show)
+  Round Shape Outcome
+  deriving (Show)
 
 parsePlay :: Char -> Shape
 parsePlay inp
-    | inp == 'A' = Rock
-    | inp == 'B' = Paper
-    | inp == 'C' = Scissors
+  | inp == 'A' = Rock
+  | inp == 'B' = Paper
+  | inp == 'C' = Scissors
 
 parseOutcome :: Char -> Outcome
 parseOutcome inp
-    | inp == 'X' = Loss
-    | inp == 'Y' = Draw
-    | inp == 'Z' = Win
+  | inp == 'X' = Loss
+  | inp == 'Y' = Draw
+  | inp == 'Z' = Win
 
 parseRound :: String -> Round
 parseRound (opp:_:me:_) = Round (parsePlay opp) (parseOutcome me)
 
 parseInput :: String -> [Round]
-parseInput inp = map parseRound $ lines inp
+parseInput = map parseRound . lines
 
 shapePoints :: Shape -> Int
 shapePoints Rock = 1
 shapePoints Paper = 2
 shapePoints Scissors = 3
 
+win :: Int
 win = 6
 
+draw :: Int
 draw = 3
 
+loss :: Int
 loss = 0
 
 roundResult :: Round -> Int

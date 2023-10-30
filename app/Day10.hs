@@ -21,8 +21,8 @@ parse :: String -> [Instruction]
 parse = map parseInstruction . lines
 
 doInstruction :: [Int] -> Instruction -> [Int]
-doInstruction prevCycles@(x:xs) Noop = x : prevCycles
-doInstruction prevCycles@(x:xs) (Addx y) = (x + y) : x : prevCycles
+doInstruction prevCycles@(x:_) Noop = x : prevCycles
+doInstruction prevCycles@(x:_) (Addx y) = (x + y) : x : prevCycles
 
 getCycles :: [Instruction] -> [Int]
 getCycles = reverse . foldl doInstruction [1]
@@ -53,6 +53,7 @@ partTwo xs =
 spriteRange :: Int -> [Int]
 spriteRange x = [x - 1, x, x + 1]
 
+drawPixels :: [Int] -> [Char]
 drawPixels = drawPixels' 0
 
 drawPixels' :: Int -> [Int] -> [Char]

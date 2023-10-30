@@ -1,7 +1,6 @@
 module Day13 where
 
-import Data.Char
-import Data.List
+import Data.List (sort)
 import Data.List.Split (splitWhen)
 
 main :: IO ()
@@ -26,8 +25,10 @@ type Pair = (Packet, Packet)
 
 type Indexed a = (Int, a)
 
+partOne :: String -> Int
 partOne = sum . map doPair . index . parseInput
 
+partTwo :: String -> Int
 partTwo xs =
     product . findDividers . index . sort $
     dividerPackets <> parseLines (lines xs)
@@ -50,8 +51,8 @@ parseLine xs = List [read $ process xs]
     process (' ':ys) = ' ' : process ys
     process (',':ys) = ',' : process ys
     process (']':ys) = ']' : process ys
-    process xs =
-        "Number " ++ takeWhile isNum xs ++ (process . dropWhile isNum) xs
+    process ys =
+        "Number " ++ takeWhile isNum ys ++ (process . dropWhile isNum) ys
     isNum = flip elem "-0123456789"
 
 index :: [a] -> [(Int, a)]
@@ -62,6 +63,7 @@ doPair (idx, (a, b))
     | a < b = idx
     | otherwise = 0
 
+dividerPackets :: [Packet]
 dividerPackets = [a, b]
   where
     a = List [List [Number 2]]
