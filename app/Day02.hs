@@ -1,7 +1,8 @@
-module Day02 where
+module Day02 (solveDay) where
+import Day (DaySolver)
 
-main :: IO ()
-main = interact $ show . solve
+solveDay :: DaySolver
+solveDay = print . solve
 
 solve :: String -> Int
 solve xs = sum $ roundResult <$> parseInput xs

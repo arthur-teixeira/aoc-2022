@@ -1,16 +1,18 @@
-module Day14 where
+module Day14
+  ( solveDay
+  ) where
 
 import Data.List (nub, tails)
 import Data.List.Split (splitWhen)
 import qualified Data.Set as S
 
 import Control.Monad.State
+import Day (DaySolver)
 
-main :: IO ()
-main = do
-  contents <- getContents
-  putStrLn $ "Part one: " <> show (partOne contents)
-  putStrLn $ "Part two: " <> show (partTwo contents)
+solveDay :: DaySolver
+solveDay input = do
+  putStrLn $ "Part one: " <> show (partOne input)
+  putStrLn $ "Part two: " <> show (partTwo input)
 
 partOne :: [Char] -> Int
 partOne xs = evalState (doPartOne rocks) 0
@@ -91,7 +93,7 @@ findLowestRock points = maximum xs
   where
     xs = map snd (S.toList points)
 
-dropSandPartTwo' :: Int -> Point -> S.Set Point -> S.Set Point 
+dropSandPartTwo' :: Int -> Point -> S.Set Point -> S.Set Point
 dropSandPartTwo' lowest sand points
   | sand `elem` points = points
   | snd sand == lowest + 1 = S.insert sand points

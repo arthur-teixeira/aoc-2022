@@ -1,11 +1,13 @@
-module Day01 where
+module Day01 (solveDay) where
+
+import Day (DaySolver)
 
 import Data.List (sortBy)
 import Data.List.Split
 import Data.Ord
 
-main :: IO ()
-main = interact (show . solve)
+solveDay :: DaySolver
+solveDay = print . solve
 
 solve :: String -> Int
 solve input =

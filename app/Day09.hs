@@ -1,16 +1,18 @@
-module Day09 where
+module Day09
+  ( solveDay
+  ) where
 
 import Prelude hiding (Left, Right)
 
 import Data.Foldable (minimumBy)
 import Data.Function (on)
 import qualified Data.Set as S
+import Day (DaySolver)
 
-main :: IO ()
-main = do
-  contents <- getContents
-  putStrLn $ partOne contents
-  putStrLn $ partTwo contents
+solveDay :: DaySolver
+solveDay input = do
+  putStrLn $ partOne input
+  putStrLn $ partTwo input
 
 solve :: State -> String -> Int
 solve state = S.size . visited . foldl (flip move) state . parse

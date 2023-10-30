@@ -1,16 +1,18 @@
 {-# LANGUAGE ParallelListComp #-}
 
-module Day08 where
+module Day08
+  ( solveDay
+  ) where
 
 import Control.Applicative (ZipList(ZipList, getZipList))
 import Data.Char (digitToInt)
 import Data.List (transpose)
+import Day (DaySolver)
 
-main :: IO ()
-main = do
-    contents <- getContents
-    putStrLn $ partOne contents
-    putStrLn $ partTwo contents
+solveDay :: DaySolver
+solveDay input = do
+  putStrLn $ partOne input
+  putStrLn $ partTwo input
 
 partOne :: String -> String
 partOne xs = "Part one: " <> (show . allVisible . visibility . parse) xs
@@ -49,9 +51,13 @@ numVisibleTreesX :: [Int] -> [Int]
 numVisibleTreesX [] = []
 numVisibleTreesX [_] = [0]
 numVisibleTreesX (x:xs) =
-    let (visible, blocker) = span (< x) xs
-        current = length visible + if null blocker then 0 else 1
-        in current : numVisibleTreesX xs
+  let (visible, blocker) = span (< x) xs
+      current =
+        length visible
+          + if null blocker
+              then 0
+              else 1
+   in current : numVisibleTreesX xs
 
 numVisibleTreesLR :: [Int] -> [Int]
 numVisibleTreesLR xs = getZipList $ (*) <$> left <*> right

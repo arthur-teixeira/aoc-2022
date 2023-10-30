@@ -1,16 +1,18 @@
 {-# LANGUAGE OverloadedStrings, NumericUnderscores #-}
 
-module Day07 where
+module Day07
+  ( solveDay
+  ) where
 
 import Data.List (partition)
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
+import Day (DaySolver)
 
-main :: IO ()
-main = do
-  contents <- getContents
-  putStrLn $ partOne contents
-  putStrLn $ partTwo contents
+solveDay :: DaySolver
+solveDay input = do
+  putStrLn $ partOne input
+  putStrLn $ partTwo input
 
 data Line
   = CdTop -- $ cd /
@@ -79,8 +81,7 @@ data Tree
 type State = (Tree, [T.Text])
 
 treeAppend :: State -> Tree -> Tree
-treeAppend (Folder name files, [_]) newNode =
-  Folder name (newNode : files)
+treeAppend (Folder name files, [_]) newNode = Folder name (newNode : files)
 treeAppend (Folder curFolderName curFolderFiles, _:nextFolder:path) newNode =
   let ([next], folders) = partition isNextFolder curFolderFiles
       newF = treeAppend (next, nextFolder : path) newNode

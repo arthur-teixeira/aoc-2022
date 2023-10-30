@@ -1,7 +1,8 @@
-module Day04 where
+module Day04 (solveDay) where
+import Day (DaySolver)
 
-main :: IO ()
-main = interact $ show . solve
+solveDay :: DaySolver
+solveDay = print . solve
 
 solve :: String -> Int
 solve = numContainedSections . map (overlapsSection . parseLine) . lines

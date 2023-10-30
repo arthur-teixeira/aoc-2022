@@ -1,17 +1,19 @@
 {-# LANGUAGE ViewPatterns #-}
 
-module Day11 where
+module Day11
+  ( solveDay
+  ) where
 
-import Data.List (stripPrefix, sortBy)
+import Data.List (sortBy, stripPrefix)
 import Data.List.Split
 import qualified Data.Map as M
 import Data.Ord
+import Day (DaySolver)
 
-main :: IO ()
-main = do
-  contents <- getContents
-  putStrLn $ partOne contents
-  putStrLn $ partTwo contents
+solveDay :: DaySolver
+solveDay input = do
+  putStrLn $ partOne input
+  putStrLn $ partTwo input
 
 data Monkey = Monkey
   { monkeyId :: Int
@@ -57,8 +59,7 @@ parse :: String -> MonkeyMap
 parse = makeMonkeyMap . map parseMonkey . splitInput
 
 parseId :: String -> Int
-parseId (stripPrefix "Monkey " -> Just mId) =
-    read [head mId]
+parseId (stripPrefix "Monkey " -> Just mId) = read [head mId]
 
 parseStartingItems :: String -> [Int]
 parseStartingItems (stripPrefix "  Starting items: " -> Just str) =
@@ -188,4 +189,5 @@ getInspections :: MonkeyMap -> [Int]
 getInspections = map (nInspected . snd) . M.toList
 
 getMonkeyBusiness :: MonkeyMap -> Int
-getMonkeyBusiness = product . take 2 . sortBy (comparing Data.Ord.Down) . getInspections
+getMonkeyBusiness =
+  product . take 2 . sortBy (comparing Data.Ord.Down) . getInspections

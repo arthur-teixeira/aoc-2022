@@ -1,25 +1,25 @@
 {-# LANGUAGE TupleSections #-}
 
-module Day12 where
+module Day12
+  ( solveDay
+  ) where
 
 import Control.Monad.State
 import qualified Data.Array.IArray as A
 import Data.List (nub)
 import Linear.V2
+import Day (DaySolver)
 
-main :: IO ()
-main = do
-    contents <- getContents
-    putStrLn $ "Part One: " <> show (partOne contents)
-    putStrLn $ "Part Two: " <> show (partTwo contents)
+solveDay :: DaySolver
+solveDay input = do
+  putStrLn $ "Part One: " <> show (partOne input)
+  putStrLn $ "Part Two: " <> show (partTwo input)
 
 partOne :: String -> Int
 partOne = evalState (starts >>= bfs) . inputToGraph . lines
 
 partTwo :: String -> Int
 partTwo = evalState (startsA >>= bfs) . inputToGraph . lines
-
-type Edge = (Int, Int)
 
 type Graph = A.Array (V2 Int) Char
 

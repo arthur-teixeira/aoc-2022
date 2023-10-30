@@ -1,10 +1,11 @@
-module Day03 where
+module Day03 (solveDay) where
 
 import Data.List (elemIndex)
 import Data.Maybe
+import Day (DaySolver)
 
-main :: IO ()
-main = interact $ (++ "\n") . show . solve
+solveDay :: DaySolver
+solveDay = print . solve
 
 chunksOf :: Int -> [a] -> [[a]]
 chunksOf size xs

@@ -1,11 +1,12 @@
-module Day05 where
+module Day05 (solveDay) where
 
 import Data.Char (isAlpha)
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
+import Day (DaySolver)
 
-main :: IO ()
-main = interact solve
+solveDay :: DaySolver
+solveDay = print . solve
 
 type Crate = Char
 
