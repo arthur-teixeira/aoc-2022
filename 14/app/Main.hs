@@ -2,15 +2,24 @@ module Main where
 
 import Data.List (nub, sort, tails)
 import Data.List.Split (splitWhen)
+import qualified Data.Set as S
 
 import Control.Monad.State
 
 main :: IO ()
 main = do
-    contents <- getContents
-    putStrLn $ "Part one: " <> show (partOne contents)
+  contents <- getContents
+  putStrLn $ "Part one: " <> show (partOne contents)
+  putStrLn $ "Part two: " <> show (partTwo contents)
 
-partOne xs = evalState (doGame . makeLines $ xs) 0
+partOne xs = evalState (doPartOne rocks) 0
+  where
+    rocks = S.fromList $ makeLines xs
+
+partTwo xs = evalState (doPartTwo lowest rocks) 1
+  where
+    rocks = S.fromList $ makeLines xs
+    lowest = findLowestRock rocks
 
 type Point = (Int, Int)
 
@@ -58,28 +67,58 @@ dropSand = dropSand' start
   where
     start = (500, 0)
 
-applyNTimes :: Int -> (a -> a) -> a -> a
-applyNTimes x f = foldr1 (.) (replicate x f)
+dropSandPartTwo lowest = dropSandPartTwo' lowest start
+  where
+    start = (500, 0)
 
-hasBelow :: Point -> [Point] -> Bool
+hasBelow :: Point -> S.Set Point -> Bool
 hasBelow (x, y) = any ((== x) . fst)
 
-dropSand' :: Point -> [Point] -> [Point]
+dropSand' :: Point -> S.Set Point -> S.Set Point
 dropSand' sand points
   | not $ hasBelow sand points = points
   | below sand `notElem` points = dropSand' (below sand) points
   | diagLeft sand `notElem` points = dropSand' (diagLeft sand) points
   | diagRight sand `notElem` points = dropSand' (diagRight sand) points
-  | otherwise = sand : points
+  | otherwise = S.insert sand points
+
+findLowestRock :: S.Set Point -> Int
+findLowestRock points = maximum xs
+  where
+    xs = map snd (S.toList points)
+
+dropSandPartTwo' :: Int -> Point -> S.Set Point -> S.Set Point 
+dropSandPartTwo' lowest sand points
+  | sand `elem` points = points
+  | snd sand == lowest + 1 = S.insert sand points
+  | below sand `notElem` points = dropSandPartTwo' lowest (below sand) points
+  | diagLeft sand `notElem` points =
+    dropSandPartTwo' lowest (diagLeft sand) points
+  | diagRight sand `notElem` points =
+    dropSandPartTwo' lowest (diagRight sand) points
+  | otherwise = S.insert sand points
 
 type SandState = State Int Int
 
-doGame :: [Point] -> SandState
-doGame stones = do
+doPartOne :: S.Set Point -> SandState
+doPartOne stones = do
   sandCount <- get
   let newState = dropSand stones
    in if newState == stones
         then return sandCount
         else do
           put (sandCount + 1)
-          doGame newState
+          doPartOne newState
+
+doPartTwo :: Int -> S.Set Point -> SandState
+doPartTwo lowest stones = do
+  sandCount <- get
+  let newState = dropSandPartTwo lowest stones
+   in if (500, 0) `elem` newState
+        then return sandCount
+        else do
+          put (sandCount + 1)
+          doPartTwo lowest newState
+
+applyNTimes :: Int -> (a -> a) -> a -> a
+applyNTimes x f = foldr1 (.) (replicate x f)
