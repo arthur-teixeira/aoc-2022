@@ -18,6 +18,7 @@ import qualified Day11 as D11
 import qualified Day12 as D12
 import qualified Day13 as D13
 import qualified Day14 as D14
+import qualified Day15 as D15
 import System.Environment (getArgs)
 
 days :: M.Map Int (DaySolver, String)
@@ -39,6 +40,7 @@ days =
         , (D12.solveDay, "12.txt")
         , (D13.solveDay, "13.txt")
         , (D14.solveDay, "14.txt")
+        , (D15.solveDay, "15.txt")
         ]
 
 main :: IO ()
