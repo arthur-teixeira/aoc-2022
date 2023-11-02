@@ -6,12 +6,12 @@ module Day15
 
 import Data.List (nub, sort, stripPrefix)
 import Data.List.Split (splitWhen)
-import Data.Maybe (mapMaybe)
 import Day (DaySolver)
 
 solveDay :: DaySolver
 solveDay input = do
   putStrLn $ "Part One: " <> show (partOne input)
+  putStrLn $ "Part Two: " <> show (partTwo input)
 
 type Point = (Int, Int)
 
@@ -48,7 +48,7 @@ parseCave input =
    in Cave {sensors = ss, beacons = bs}
 
 manhattanDistance :: Point -> Point -> Int
-manhattanDistance (x1, y1) (x2, y2) = abs (x1 - x2) + abs (y1 - y2)
+manhattanDistance (a1, b1) (a2, b2) = abs (a1 - a2) + abs (b1 - b2)
 
 isBetween :: (Ord a) => a -> (a, a) -> Bool
 isBetween x (a, b) = x >= a && x <= b
@@ -58,18 +58,16 @@ intersectsRow y s = y `isBetween` sensorBoundsY s
   where
     sensorBoundsY (_, y', r) = (y' - r, y' + r)
 
-spanRow :: Int -> Sensor -> Maybe (Int, Int)
-spanRow y (xs, ys, rs)
-  | dx > 0 = Just (xs - dx, xs + dx)
-  | otherwise = Nothing
-  where
-    dx = rs - abs (y - ys)
+spanRow :: Int -> Sensor -> Point
+spanRow y (xs, ys, rs) =
+  let dx = rs - abs (y - ys)
+   in (xs - dx, xs + dx)
 
-flattenSpan :: [(Int, Int)] -> [Int]
+flattenSpan :: [Point] -> [Int]
 flattenSpan [] = []
-flattenSpan ((xm, xM):xs) = [xm .. xM] ++ flattenSpan xs
+flattenSpan ((a1, a2):xs) = [a1 .. a2] ++ flattenSpan xs
 
-reduceSpan :: [(Int, Int)] -> [(Int, Int)]
+reduceSpan :: [Point] -> [Point]
 reduceSpan [] = []
 reduceSpan [x] = [x]
 reduceSpan ((a1, b1):(a2, b2):xs)
@@ -79,17 +77,49 @@ reduceSpan ((a1, b1):(a2, b2):xs)
   | a1 <= a2 && b1 >= a2 = reduceSpan ((a1, b2) : xs)
   | otherwise = (a1, b1) : reduceSpan ((a2, b2) : xs)
 
+subtractSpans :: Point -> [Point] -> [Point]
+subtractSpans a [] = [a]
+subtractSpans (a1, b1) ((a2, b2):xs)
+  | a1 <= a2 && b1 >= b2 =
+    subtractSpans (a1, a2 - 1) xs ++ subtractSpans (b2 + 1, b1) xs
+  | a1 >= a2 && b1 <= b2 = []
+  | a1 <= b2 && b1 >= b2 = subtractSpans (b2 + 1, b1) xs
+  | a1 <= a2 && b1 >= a2 = subtractSpans (a1, a2 - 1) xs
+  | otherwise = subtractSpans (a1, b1) xs
+
 sensorsCoveringRow :: Int -> Cave -> [Sensor]
 sensorsCoveringRow y = filter (intersectsRow y) . sensors
 
-positionsCoveredAtRow :: Int -> Cave -> [(Int, Int)]
-positionsCoveredAtRow y cave =
+coveredPositionsAtRow :: Int -> Cave -> [Point]
+coveredPositionsAtRow y cave =
   let ss = sensorsCoveringRow y cave
-      ranges = sort $ mapMaybe (spanRow y) ss
-      flattened = map (, y) (flattenSpan . reduceSpan $ ranges)
+      ranges = sort $ map (spanRow y) ss
+      flattened = map (, y) . flattenSpan . reduceSpan $ ranges
    in filter (`notElem` beacons cave) flattened
 
+uncoveredPositionsAtRow :: Int -> Int -> Cave -> [Point]
+uncoveredPositionsAtRow maxX y cave =
+  let ss = sensorsCoveringRow y cave
+      ranges = sort $ map (spanRow y) ss
+      uncoveredRows = flattenSpan $ subtractSpans (0, maxX) ranges
+   in map (, y) uncoveredRows
+
+findDistressBeacon :: Int -> Cave -> Point
+findDistressBeacon maxY c =
+  case filter (not . null) [uncoveredPositionsAtRow maxY y c | y <- [0 .. maxY]] of
+    [[a]] -> a
+
+tuningFrequency :: Point -> Int
+tuningFrequency (x, y) = x * factor + y
+  where
+    factor = 4000000
+
 partOne :: String -> Int
-partOne = length . positionsCoveredAtRow y . parseCave
+partOne = length . coveredPositionsAtRow y . parseCave
   where
     y = 2000000
+
+partTwo :: String -> Int
+partTwo = tuningFrequency . findDistressBeacon y . parseCave
+  where
+    y = 4000000
