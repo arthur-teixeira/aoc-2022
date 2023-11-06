@@ -19,6 +19,8 @@ import qualified Day12 as D12
 import qualified Day13 as D13
 import qualified Day14 as D14
 import qualified Day15 as D15
+import qualified Day16 as D16
+
 import System.Environment (getArgs)
 
 days :: M.Map Int (DaySolver, String)
@@ -41,14 +43,21 @@ days =
         , (D13.solveDay, "13.txt")
         , (D14.solveDay, "14.txt")
         , (D15.solveDay, "15.txt")
+        , (D16.solveDay, "16.txt")
         ]
+
+usage :: IO ()
+usage = putStrLn "Usage: stack run main \"day\""
 
 main :: IO ()
 main = do
-  [day] <- getArgs
-  case M.lookup (read day) days of
-    Just (solver, inputFile) -> do
-      input <- readFile $ "inputs/" <> inputFile
-      putStrLn $ "Day " <> day
-      solver input
-    Nothing -> putStrLn "Invalid day"
+  args <- getArgs
+  if null args
+    then usage
+    else let [day] = args
+          in case M.lookup (read day) days of
+               Just (solver, inputFile) -> do
+                 input <- readFile $ "inputs/" <> inputFile
+                 putStrLn $ "Day " <> day
+                 solver input
+               Nothing -> putStrLn "Invalid day"

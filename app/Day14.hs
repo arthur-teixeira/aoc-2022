@@ -125,6 +125,3 @@ doPartTwo lowest stones = do
         else do
           put (sandCount + 1)
           doPartTwo lowest newState
-
-applyNTimes :: Int -> (a -> a) -> a -> a
-applyNTimes x f = foldr1 (.) (replicate x f)
